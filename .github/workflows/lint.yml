@@ -1,0 +1,23 @@
+name: Lint
+
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install Poetry
+      run: pip install poetry==2.0.1 poetry-audit-plugin
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.10"
+        cache: 'poetry'
+    - name: Install dependencies
+      run: poetry install
+    - name: Run linters
+      run: make lint-check
+    - name: Security audit
+      run: make audit

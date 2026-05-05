@@ -1,0 +1,109 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "platzky_promocode"
+version = "0.1.0"
+description = "Plugin for revealing promo codes."
+authors = ["ravenw-wing"]
+license = "MIT"
+readme = "README.md"
+include = ["platzky_promocode/static/**"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+platzky = "^1.4.6"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+black = "^24.10.0"
+ruff = "^0.8.3"
+pyright = "^1.1.390"
+coverage = "^7.6.9"
+interrogate = "^1.7.0"
+python-semantic-release = "^10.4.1"
+goodmap = "^1.6.1"
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+show-fixes = true
+
+[tool.ruff.lint]
+select = [
+    "I",
+    "F",
+    "E",
+    "W",
+    "PT",
+    "RUF",
+]
+
+[tool.pyright]
+pythonVersion = "3.10"
+pythonPlatform = "All"
+typeCheckingMode = "strict"
+reportMissingImports = true
+reportMissingTypeStubs = false
+reportMissingParameterType = true
+reportUnknownArgumentType = true
+reportUnknownMemberType = true
+reportUnknownVariableType = true
+reportUnknownParameterType = true
+reportUnnecessaryTypeIgnoreComment = true
+reportUntypedClassDecorator = false
+reportUntypedFunctionDecorator = false
+reportUnnecessaryIsInstance = false
+reportUnusedFunction = true
+reportUntypedBaseClass = false
+
+[tool.pytest.ini_options]
+markers = [
+    "skip_coverage: skip coverage for this test",
+]
+
+[tool.interrogate]
+fail-under = 95
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-private = true
+ignore-semiprivate = false
+exclude = ["tests", "docs"]
+
+[tool.semantic_release]
+allow_zero_version = true
+major_on_zero = false
+version_toml = ["pyproject.toml:tool.poetry.version"]
+build_command = "poetry build"
+dist_path = "dist/"
+remove_dist = false
+commit_author = "semantic-release <semantic-release>"
+commit_message = "chore(release): {version} [skip ci]"
+tag_format = "{version}"
+
+[tool.semantic_release.changelog]
+exclude_commit_patterns = []
+
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "CHANGELOG.md"
+output_format = "md"
+mask_initial_release = true
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease = false
+
+[tool.semantic_release.commit_parser_options]
+allowed_tags = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf"]
+
+[tool.semantic_release.publish]
+dist_glob_patterns = ["dist/*"]
+upload_to_vcs_release = true

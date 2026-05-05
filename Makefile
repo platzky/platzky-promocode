@@ -1,0 +1,35 @@
+.PHONY: lint dev lint-check unit-tests coverage html-cov audit build build-frontend
+
+lint:
+	poetry run black .
+	poetry run ruff check --fix .
+
+dev: lint
+	poetry run pyright .
+
+lint-check:
+	poetry run black --check .
+	poetry run ruff check .
+	poetry run pyright .
+	poetry run interrogate platzky_promocode/ --verbose
+
+unit-tests:
+	poetry run python -m pytest -v
+
+coverage:
+	poetry run coverage run --branch --source=platzky_promocode -m pytest -m "not skip_coverage"
+	poetry run coverage report --fail-under=90
+	poetry run coverage lcov
+
+html-cov: coverage
+	poetry run coverage html
+
+# Requires poetry-audit-plugin: pip install poetry-audit-plugin
+audit:
+	poetry audit --ignore-package=py
+
+build-frontend:
+	cd frontend && npm install && npm run build
+
+build: build-frontend
+	poetry build
