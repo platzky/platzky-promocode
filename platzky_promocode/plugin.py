@@ -1,44 +1,14 @@
-"""Plugin for revealing promo codes."""
+"""Plugin for revealing promo codes embedded in blog content."""
 
 import base64
 import re
-from typing import Any
+from typing import Any, ClassVar
 
-from flask import Blueprint
-from goodmap.plugin import GoodmapPlugin
-from markupsafe import Markup, escape
-from platzky.engine import Engine
-from platzky.plugin.plugin import PluginBaseConfig
-from pydantic import field_validator
-
-_CSS_JS = """
-<style>
-.platzky-promocode-btn {
-    background-color: var(--platzky-promocode-color, #4caf50);
-    border: none;
-    border-radius: 4px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0.5rem 1.25rem;
-    transition: opacity 0.2s;
-}
-.platzky-promocode-btn:hover { opacity: 0.85; }
-.platzky-promocode-btn.revealed {
-    background-color: #333;
-    cursor: default;
-    font-family: monospace;
-    letter-spacing: 0.1em;
-}
-</style>
-<script>
-function platzkyRevealPromocode(btn) {
-    btn.textContent = atob(btn.dataset.code);
-    btn.classList.add('revealed');
-    btn.onclick = null;
-}
-</script>
-"""
+from markupsafe import escape
+from platzky.plugin.content_transformer import ContentTransformerPluginBase
+from platzky.plugin.plugin import ConfigPluginError
+from platzky.shortcodes import Shortcode, ShortcodeAttr, ShortcodeAttrs
+from pydantic import BaseModel, ValidationError, field_validator
 
 _COLOR_RE = re.compile(
     r"^(#[0-9a-fA-F]{3,8}"
@@ -47,17 +17,12 @@ _COLOR_RE = re.compile(
     r"|[a-zA-Z]+)$"
 )
 
-_MF_SCOPE = "promocode"
-_MF_MODULE = "./Button"
-_MF_URL = f"/plugins/{_MF_SCOPE}/remoteEntry.js"
 
-
-class PromocodeConfig(PluginBaseConfig):
+class PromocodeConfig(BaseModel):
     """Configuration for the Promocode plugin."""
 
     color: str = "#4caf50"
     text: str = "Reveal Promo Code"
-    promo_code: str
 
     @field_validator("color")
     @classmethod
@@ -68,50 +33,85 @@ class PromocodeConfig(PluginBaseConfig):
         return v.strip()
 
 
-class PromocodePlugin(GoodmapPlugin[PromocodeConfig]):
-    """Goodmap plugin that renders a click-to-reveal promo code button."""
+class _PromocodeShortcode(Shortcode):
+    """Shortcode that renders a reveal button for a promo code."""
 
-    field_renderers = {"promo_code": _MF_SCOPE}
+    name = "promocode"
+    description = "Reveal a promo code on click. Hidden until clicked."
+    attributes: ClassVar[ShortcodeAttrs] = ShortcodeAttrs(
+        [ShortcodeAttr("color", "Button colour (any CSS colour literal)", required=False)]
+    )
+    example = "[promocode]SUMMER2024[/promocode]"
 
-    @classmethod
-    def get_config_model(cls) -> type[PromocodeConfig]:
-        """Return the config model class for this plugin."""
-        return PromocodeConfig
+    def __init__(self, config: PromocodeConfig) -> None:
+        """Initialise with plugin config.
 
-    def process(self, app: Engine) -> Engine:
-        """Register MF remote, static files, CSS/JS, and Jinja2 global."""
-        app = super().process(app)
-        assert isinstance(self.config, PromocodeConfig)
-        config = self.config
+        Args:
+            config: Plugin configuration supplying button text and default colour.
+        """
+        self._config = config
 
-        # Serve the compiled MF remote entry from the package's static/ directory.
-        blueprint = Blueprint(
-            "platzky_promocode",
-            __name__,
-            static_folder="static",
-            static_url_path=f"/plugins/{_MF_SCOPE}",
+    def render(self, attrs: ShortcodeAttrs, content: str) -> str:
+        """Render a reveal button for the promo code in content.
+
+        Args:
+            attrs: Parsed shortcode attributes; ``color`` overrides the configured colour.
+            content: The promo code to encode.
+
+        Returns:
+            A ``<button>`` element that reveals the code on click.
+        """
+        code = content.strip()
+        encoded = base64.b64encode(code.encode()).decode()
+        safe_text = escape(self._config.text)
+        color = (
+            attrs.color.strip()
+            if attrs.color and _COLOR_RE.match(attrs.color.strip())
+            else self._config.color
         )
-        app.register_blueprint(blueprint)
-
-        app.add_dynamic_head(
-            f"<script>"
-            f"window.PLUGIN_MANIFEST=window.PLUGIN_MANIFEST||[];"
-            f'window.PLUGIN_MANIFEST.push({{scope:"{_MF_SCOPE}",url:"{_MF_URL}",module:"{_MF_MODULE}"}});'
-            f"</script>"
-        )
-        app.add_dynamic_head(_CSS_JS)
-
-        encoded = base64.b64encode(config.promo_code.encode()).decode()
-        safe_text = escape(config.text)
-        button_html = Markup(
-            f'<button class="platzky-promocode-btn" '
-            f'style="--platzky-promocode-color:{config.color};" '
-            f'data-code="{encoded}" '
-            f'onclick="platzkyRevealPromocode(this)">'
+        return (
+            f'<button class="platzky-promocode-btn"'
+            f' style="--platzky-promocode-color:{color};"'
+            f' data-code="{encoded}"'
+            f' onclick="platzkyRevealPromocode(this)">'
             f"{safe_text}"
             f"</button>"
         )
-        jinja_globals: dict[str, Any] = app.jinja_env.globals
-        jinja_globals["promocode_button"] = lambda: button_html
 
-        return app
+
+class PromocodePlugin(ContentTransformerPluginBase):
+    """Plugin that registers a ``[promocode]`` shortcode.
+
+    Blog authors embed promo codes in post content as::
+
+        [promocode]SAVE20[/promocode]
+
+    An optional ``color`` attribute overrides the configured button colour::
+
+        [promocode color="#e91e63"]SAVE20[/promocode]
+
+    The actual code is base64-encoded in a ``data-code`` attribute and decoded
+    client-side via ``atob()`` so it is never present as plain text in the DOM.
+    """
+
+    shortcodes: ClassVar[dict[str, Shortcode]] = {}
+
+    def __init__(self, _config: dict[str, Any]) -> None:
+        """Initialise the plugin, parse config, and build the shortcode registry.
+
+        Args:
+            _config: Raw configuration dict from the platzky engine.
+
+        Raises:
+            ConfigPluginError: If the configuration is invalid.
+        """
+        super().__init__(_config)
+        try:
+            config = PromocodeConfig.model_validate(_config)
+        except ValidationError as e:
+            raise ConfigPluginError(f"Invalid configuration: {e}") from e
+        self.shortcodes = {"promocode": _PromocodeShortcode(config)}  # type: ignore[misc]
+        self.config = config
+
+
+Plugin = PromocodePlugin
