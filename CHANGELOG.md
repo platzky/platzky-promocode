@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2](https://github.com/platzky/platzky-promocode/compare/platzky-promocode-v0.2.1...platzky-promocode-v0.2.2) (2026-05-12)
+
+
+### Bug Fixes
+
+* installing poetry in correct order ([85e7cc2](https://github.com/platzky/platzky-promocode/commit/85e7cc2876081cd2b82d8daca9000eef29158c3b))
+* installing poetry in correct order ([28fb434](https://github.com/platzky/platzky-promocode/commit/28fb434ed2e6c352972122c1cdf54bb9b3997dc1))
+
 ## [0.2.1](https://github.com/platzky/platzky-promocode/compare/platzky-promocode-v0.2.0...platzky-promocode-v0.2.1) (2026-05-12)
 
 
