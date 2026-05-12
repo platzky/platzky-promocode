@@ -1,0 +1,16 @@
+# Changelog
+
+## [0.2.0](https://github.com/platzky/platzky-promocode/compare/platzky-promocode-v0.1.0...platzky-promocode-v0.2.0) (2026-05-12)
+
+
+### Features
+
+* introducing plugin ([c035de9](https://github.com/platzky/platzky-promocode/commit/c035de9c6524dbf800fe2db1e8704cc677b19444))
+
+
+### Bug Fixes
+
+* add missing line to workflow ([1b2b0c0](https://github.com/platzky/platzky-promocode/commit/1b2b0c0e4c4b304c290213c193900913e1a3572c))
+* add missing line to workflow ([ee2c417](https://github.com/platzky/platzky-promocode/commit/ee2c41707b57644babefdac6d90d1c293977196a))
+* update dependencies ([3d86b1f](https://github.com/platzky/platzky-promocode/commit/3d86b1f490e34a0c5cf084a91db09bd63977abd3))
+* update dependencies ([8c4fb78](https://github.com/platzky/platzky-promocode/commit/8c4fb78f385b1f07e73a30a7633fa214f60e0df4))
