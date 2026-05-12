@@ -25,6 +25,7 @@ ruff = "^0.8.3"
 pyright = "^1.1.390"
 coverage = "^7.6.9"
 interrogate = "^1.7.0"
+platzky = "2.0.0a0"
 
 
 [tool.black]
