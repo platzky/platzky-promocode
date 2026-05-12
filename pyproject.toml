@@ -13,7 +13,6 @@ include = ["platzky_promocode/static/**"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-platzky = {path = "../platzky"}
 
 [tool.poetry.plugins."platzky.plugins"]
 promocode = "platzky_promocode.plugin:PromocodePlugin"
