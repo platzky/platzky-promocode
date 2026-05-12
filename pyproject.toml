@@ -13,18 +13,18 @@ include = ["platzky_promocode/static/**"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-platzky = {path = "../platzky"}
 
 [tool.poetry.plugins."platzky.plugins"]
 promocode = "platzky_promocode.plugin:PromocodePlugin"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
-black = "^24.10.0"
+pytest = "^9.0.3"
+black = "^26.3.1"
 ruff = "^0.8.3"
 pyright = "^1.1.390"
 coverage = "^7.6.9"
 interrogate = "^1.7.0"
+platzky = "2.0.0a0"
 
 
 [tool.black]
