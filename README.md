@@ -20,7 +20,6 @@ Register the plugin in your platzky config:
         {
             "name": "promocode",
             "config": {
-                "promo_code": "SUMMER24",
                 "text": "Reveal your discount",
                 "color": "#e63946"
             }
@@ -31,30 +30,19 @@ Register the plugin in your platzky config:
 
 | Field | Required | Default | Description |
 |---|---|---|---|
-| `promo_code` | yes | — | The code to reveal on click |
 | `text` | no | `"Reveal Promo Code"` | Button label before reveal |
 | `color` | no | `"#4caf50"` | Button background (any CSS color literal) |
 
-## Usage in a location pin
+## Usage in blog content
 
-Add a `promo_code` field to the location data and include it in `visible_data`:
+Embed the promo code directly in post content using the shortcode:
 
-```json
-{
-    "promo_code": {
-        "code": "SUMMER24",
-        "text": "Reveal your discount",
-        "color": "#e63946"
-    }
-}
+```markdown
+Get 20% off with code [promocode]SUMMER24[/promocode] — don't miss out!
 ```
 
-When the plugin is enabled, it automatically detects this field and renders it as an interactive button — no extra markup needed in the location data.
+An optional `color` attribute overrides the configured button colour:
 
-## Usage in a Jinja2 template
-
-```html
-{{ promocode_button() }}
+```markdown
+Grab your [promocode color="#e91e63"]SAVE20[/promocode] before it expires!
 ```
-
-The button uses the `text`, `color`, and `promo_code` values from the plugin config.
