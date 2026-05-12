@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/platzky/platzky-promocode/compare/platzky-promocode-v0.2.0...platzky-promocode-v0.2.1) (2026-05-12)
+
+
+### Bug Fixes
+
+* replaced cached poetry with installation ([7f7d322](https://github.com/platzky/platzky-promocode/commit/7f7d32212264d700d222427f3f5941a79cd8c0f3))
+* replaced cached poetry with installation ([a514375](https://github.com/platzky/platzky-promocode/commit/a514375322460fea09d9e58ba5d9d868e588144a))
+
 ## [0.2.0](https://github.com/platzky/platzky-promocode/compare/platzky-promocode-v0.1.0...platzky-promocode-v0.2.0) (2026-05-12)
 
 
