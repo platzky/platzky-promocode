@@ -1,0 +1,79 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "platzky_promocode"
+version = "0.1.0"
+description = "Plugin for revealing promo codes."
+authors = ["ravenw-wing"]
+license = "MIT"
+readme = "README.md"
+include = ["platzky_promocode/static/**"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+platzky = {path = "../platzky"}
+
+[tool.poetry.plugins."platzky.plugins"]
+promocode = "platzky_promocode.plugin:PromocodePlugin"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+black = "^24.10.0"
+ruff = "^0.8.3"
+pyright = "^1.1.390"
+coverage = "^7.6.9"
+interrogate = "^1.7.0"
+
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+show-fixes = true
+
+[tool.ruff.lint]
+select = [
+    "I",
+    "F",
+    "E",
+    "W",
+    "PT",
+    "RUF",
+]
+
+[tool.pyright]
+pythonVersion = "3.10"
+pythonPlatform = "All"
+typeCheckingMode = "strict"
+reportMissingImports = true
+reportMissingTypeStubs = false
+reportMissingParameterType = true
+reportUnknownArgumentType = true
+reportUnknownMemberType = true
+reportUnknownVariableType = true
+reportUnknownParameterType = true
+reportUnnecessaryTypeIgnoreComment = true
+reportUntypedClassDecorator = false
+reportUntypedFunctionDecorator = false
+reportUnnecessaryIsInstance = false
+reportUnusedFunction = true
+reportUntypedBaseClass = false
+
+[tool.pytest.ini_options]
+markers = [
+    "skip_coverage: skip coverage for this test",
+]
+
+[tool.interrogate]
+fail-under = 95
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-private = true
+ignore-semiprivate = false
+exclude = ["tests", "docs"]
