@@ -2,7 +2,8 @@
   "packages": {
     ".": {
       "release-type": "python",
-      "package-name": "platzky-promocode"
+      "package-name": "platzky-promocode",
+      "include-component-in-tag": false
     }
   }
 }

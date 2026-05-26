@@ -22,7 +22,7 @@ class PromocodeConfig(BaseModel):
     """Configuration for the Promocode plugin."""
 
     color: str = "#4caf50"
-    text: str = "Reveal Promo Code"
+    text: str | dict[str, str] = "Reveal Promo Code"
 
     @field_validator("color")
     @classmethod
@@ -63,7 +63,15 @@ class _PromocodeShortcode(Shortcode):
         """
         code = content.strip()
         encoded = base64.b64encode(code.encode()).decode()
-        safe_text = escape(self._config.text)
+        text = self._config.text
+        if isinstance(text, dict):
+            from flask_babel import get_locale
+
+            locale = str(get_locale())
+            label = text.get(locale) or next(iter(text.values()))
+        else:
+            label = text
+        safe_text = escape(label)
         color = (
             attrs.color.strip()
             if attrs.color and _COLOR_RE.match(attrs.color.strip())

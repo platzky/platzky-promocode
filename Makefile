@@ -1,4 +1,4 @@
-.PHONY: lint dev lint-check unit-tests coverage html-cov audit build build-frontend
+.PHONY: lint dev lint-check unit-tests coverage html-cov audit build build-frontend compile-translations update-translations
 
 lint:
 	poetry run black .
@@ -31,5 +31,12 @@ audit:
 build-frontend:
 	cd frontend && npm install && npm run build
 
-build: build-frontend
+build: build-frontend compile-translations
 	poetry build
+
+compile-translations:
+	poetry run pybabel compile -d platzky_promocode/locale
+
+update-translations:
+	poetry run pybabel extract -F babel.cfg -o messages.pot platzky_promocode/
+	poetry run pybabel update -i messages.pot -d platzky_promocode/locale

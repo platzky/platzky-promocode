@@ -9,7 +9,7 @@ description = "Plugin for revealing promo codes."
 authors = ["ravenw-wing"]
 license = "MIT"
 readme = "README.md"
-include = ["platzky_promocode/static/**"]
+include = ["platzky_promocode/static/**", "platzky_promocode/locale/**"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
