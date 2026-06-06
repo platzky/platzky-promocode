@@ -1,4 +1,4 @@
-.PHONY: lint dev lint-check unit-tests coverage html-cov audit build build-frontend compile-translations update-translations
+.PHONY: lint dev lint-check unit-tests coverage html-cov build build-frontend compile-translations update-translations
 
 lint:
 	poetry run black .
@@ -23,10 +23,6 @@ coverage:
 
 html-cov: coverage
 	poetry run coverage html
-
-# Requires poetry-audit-plugin: pip install poetry-audit-plugin
-audit:
-	poetry audit --ignore-package=py
 
 build-frontend:
 	cd frontend && npm install && npm run build
