@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "platzky_promocode"
-version = "0.3.0"
+version = "0.3.1"
 description = "Plugin for revealing promo codes."
 authors = ["ravenw-wing"]
 license = "MIT"
