@@ -30,8 +30,31 @@ Register the plugin in your platzky config:
 
 | Field | Required | Default | Description |
 |---|---|---|---|
-| `text` | no | `"Reveal Promo Code"` | Button label before reveal |
+| `text` | no | `"Reveal Promo Code"` | Button label before reveal — a plain string, or a `{locale: label}` map for per-language labels |
 | `color` | no | `"#4caf50"` | Button background (any CSS color literal) |
+
+### Translated button labels
+
+`text` can be a map of locale codes to labels instead of a single string. The label
+matching the visitor's active locale is used, falling back to the first entry in the
+map when there is no match:
+
+```json
+{
+    "plugins": [
+        {
+            "name": "promocode",
+            "config": {
+                "text": {
+                    "en": "Reveal Promo Code",
+                    "pl": "Pokaż kod promocyjny",
+                    "uk": "Показати промокод"
+                }
+            }
+        }
+    ]
+}
+```
 
 ## Usage in blog content
 

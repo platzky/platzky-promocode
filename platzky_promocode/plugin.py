@@ -4,6 +4,7 @@ import base64
 import re
 from typing import Any, ClassVar
 
+from flask_babel import get_locale, gettext  # type: ignore[reportUnknownVariableType]
 from markupsafe import escape
 from platzky.plugin.content_transformer import ContentTransformerPluginBase
 from platzky.plugin.plugin import ConfigPluginError
@@ -65,12 +66,10 @@ class _PromocodeShortcode(Shortcode):
         encoded = base64.b64encode(code.encode()).decode()
         text = self._config.text
         if isinstance(text, dict):
-            from flask_babel import get_locale
-
             locale = str(get_locale())
             label = text.get(locale) or next(iter(text.values()))
         else:
-            label = text
+            label = gettext(text)
         safe_text = escape(label)
         color = (
             attrs.color.strip()
