@@ -100,14 +100,14 @@ def test_shortcode_descriptor_has_metadata() -> None:
 
 def test_text_dict_uses_matching_locale() -> None:
     plugin = PromocodePlugin({"text": {"en": "Reveal", "pl": "Pokaż"}})
-    with patch("flask_babel.get_locale", return_value=Locale("pl")):
+    with patch("platzky_promocode.plugin.get_locale", return_value=Locale("pl")):
         result = _render(plugin, "[promocode]CODE[/promocode]")
     assert "Pokaż" in result
 
 
 def test_text_dict_falls_back_to_first_key_when_no_match() -> None:
     plugin = PromocodePlugin({"text": {"en": "Reveal", "pl": "Pokaż"}})
-    with patch("flask_babel.get_locale", return_value=Locale("uk")):
+    with patch("platzky_promocode.plugin.get_locale", return_value=Locale("uk")):
         result = _render(plugin, "[promocode]CODE[/promocode]")
     assert "Reveal" in result
 
