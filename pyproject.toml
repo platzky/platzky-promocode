@@ -20,7 +20,7 @@ promocode = "platzky_promocode.plugin:PromocodePlugin"
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.3"
 black = "^26.3.1"
-ruff = "^0.8.3"
+ruff = ">=0.8.3,<0.16.0"
 pyright = "^1.1.390"
 coverage = "^7.6.9"
 interrogate = "^1.7.0"
