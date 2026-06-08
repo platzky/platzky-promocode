@@ -53,6 +53,7 @@ class _PromocodeShortcode(Shortcode):
         self._config = config
 
     def _resolve_label(self) -> str:
+        """Return the localised button label from config text or dict mapping."""
         text = self._config.text
         if isinstance(text, dict):
             locale = str(get_locale())
