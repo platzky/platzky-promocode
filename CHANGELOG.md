@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/platzky/platzky-promocode/compare/v0.3.3...v0.3.4) (2026-06-08)
+
+
+### Bug Fixes
+
+* add missing translation files ([#23](https://github.com/platzky/platzky-promocode/issues/23)) ([08f4e61](https://github.com/platzky/platzky-promocode/commit/08f4e61cef8e7cd762c0f719378094917b596359))
+
 ## [0.3.3](https://github.com/platzky/platzky-promocode/compare/v0.3.2...v0.3.3) (2026-06-08)
 
 
