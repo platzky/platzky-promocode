@@ -52,6 +52,13 @@ class _PromocodeShortcode(Shortcode):
         """
         self._config = config
 
+    def _resolve_label(self) -> str:
+        text = self._config.text
+        if isinstance(text, dict):
+            locale = str(get_locale())
+            return text.get(locale) or next(iter(text.values()))
+        return gettext(text)
+
     def transform_field_value(self, value: object) -> dict[str, object]:
         """Merge config defaults, add scope, and base64-encode the promo code.
 
@@ -59,6 +66,7 @@ class _PromocodeShortcode(Shortcode):
         per-entry overrides (``color``, ``text``).  Dict values win over config defaults.
         """
         result: dict[str, object] = {**self._config.model_dump(), "scope": self.name}
+        result["text"] = self._resolve_label()
         if isinstance(value, str):
             code = value
         elif isinstance(value, dict):
@@ -86,12 +94,7 @@ class _PromocodeShortcode(Shortcode):
             value["color"] = attrs.color.strip()
         data = self.transform_field_value(value)
 
-        text = self._config.text
-        if isinstance(text, dict):
-            locale = str(get_locale())
-            label = text.get(locale) or next(iter(text.values()))
-        else:
-            label = gettext(text)
+        label = self._resolve_label()
 
         code_val = data.get("code")
         color_val = data.get("color")
