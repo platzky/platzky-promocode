@@ -116,3 +116,36 @@ def test_text_str_used_literally() -> None:
     plugin = PromocodePlugin({"text": "Custom label"})
     result = _render(plugin, "[promocode]CODE[/promocode]")
     assert "Custom label" in result
+
+
+# --- transform_field_value ---
+
+
+def test_transform_field_value_plain_string() -> None:
+    plugin = PromocodePlugin({"color": "#ff0000", "text": "Get Code"})
+    sc = plugin.shortcodes["promocode"]
+    result = sc.transform_field_value("SUMMER24")
+    assert result == {
+        "scope": "promocode",
+        "color": "#ff0000",
+        "text": "Get Code",
+        "code": "U1VNTUVSMjQ=",
+    }
+
+
+def test_transform_field_value_dict_with_overrides() -> None:
+    plugin = PromocodePlugin({"color": "#ff0000", "text": "Get Code"})
+    sc = plugin.shortcodes["promocode"]
+    result = sc.transform_field_value({"code": "SUMMER24", "color": "red", "text": "custom"})
+    assert result["code"] == "U1VNTUVSMjQ="
+    assert result["color"] == "red"
+    assert result["text"] == "custom"
+    assert result["scope"] == "promocode"
+
+
+def test_transform_field_value_dict_falls_back_to_config_defaults() -> None:
+    plugin = PromocodePlugin({"color": "#ff0000", "text": "Get Code"})
+    sc = plugin.shortcodes["promocode"]
+    result = sc.transform_field_value({"code": "X"})
+    assert result["color"] == "#ff0000"
+    assert result["text"] == "Get Code"

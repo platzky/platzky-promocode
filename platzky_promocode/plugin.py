@@ -2,7 +2,7 @@
 
 import base64
 import re
-from typing import Any, ClassVar
+from typing import Any, ClassVar, cast
 
 from flask_babel import get_locale, gettext  # type: ignore[reportUnknownVariableType]
 from markupsafe import escape
@@ -52,6 +52,25 @@ class _PromocodeShortcode(Shortcode):
         """
         self._config = config
 
+    def transform_field_value(self, value: object) -> dict[str, object]:
+        """Merge config defaults, add scope, and base64-encode the promo code.
+
+        Accepts a plain string (the code) or a dict with ``code`` plus optional
+        per-entry overrides (``color``, ``text``).  Dict values win over config defaults.
+        """
+        result: dict[str, object] = {**self._config.model_dump(), "scope": self.name}
+        if isinstance(value, str):
+            code = value
+        elif isinstance(value, dict):
+            d = cast(dict[str, object], value)
+            result.update({k: v for k, v in d.items() if k != "code"})
+            code = d.get("code", "")
+        else:
+            return result
+        if isinstance(code, str) and code:
+            result["code"] = base64.b64encode(code.encode()).decode()
+        return result
+
     def render(self, attrs: ShortcodeAttrs, content: str) -> str:
         """Render a reveal button for the promo code in content.
 
@@ -62,26 +81,29 @@ class _PromocodeShortcode(Shortcode):
         Returns:
             A ``<button>`` element that reveals the code on click.
         """
-        code = content.strip()
-        encoded = base64.b64encode(code.encode()).decode()
+        value: dict[str, object] = {"code": content.strip()}
+        if attrs.color and _COLOR_RE.match(attrs.color.strip()):
+            value["color"] = attrs.color.strip()
+        data = self.transform_field_value(value)
+
         text = self._config.text
         if isinstance(text, dict):
             locale = str(get_locale())
             label = text.get(locale) or next(iter(text.values()))
         else:
             label = gettext(text)
-        safe_text = escape(label)
-        color = (
-            attrs.color.strip()
-            if attrs.color and _COLOR_RE.match(attrs.color.strip())
-            else self._config.color
-        )
+
+        code_val = data.get("code")
+        color_val = data.get("color")
+        encoded = code_val if isinstance(code_val, str) else ""
+        color = color_val if isinstance(color_val, str) else self._config.color
+
         return (
             f'<button class="platzky-promocode-btn"'
             f' style="--platzky-promocode-color:{color};"'
             f' data-code="{encoded}"'
             f' onclick="platzkyRevealPromocode(this)">'
-            f"{safe_text}"
+            f"{escape(label)}"
             f"</button>"
         )
 
