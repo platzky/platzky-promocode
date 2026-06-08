@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/platzky/platzky-promocode/compare/v0.3.1...v0.3.2) (2026-06-08)
+
+
+### Bug Fixes
+
+* fix default value for platzky ([#19](https://github.com/platzky/platzky-promocode/issues/19)) ([4d153eb](https://github.com/platzky/platzky-promocode/commit/4d153eb3d8a16055d3e8a73d358b5019bcce866d))
+
 ## [0.3.1](https://github.com/platzky/platzky-promocode/compare/v0.3.0...v0.3.1) (2026-06-06)
 
 
