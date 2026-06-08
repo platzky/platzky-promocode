@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/platzky/platzky-promocode/compare/v0.3.2...v0.3.3) (2026-06-08)
+
+
+### Bug Fixes
+
+* build .mo files during release ([#21](https://github.com/platzky/platzky-promocode/issues/21)) ([58a8a51](https://github.com/platzky/platzky-promocode/commit/58a8a51752f334acda4faf86961b0ba57d5960e8))
+
 ## [0.3.2](https://github.com/platzky/platzky-promocode/compare/v0.3.1...v0.3.2) (2026-06-08)
 
 
