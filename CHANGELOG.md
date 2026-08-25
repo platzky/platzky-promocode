@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.0](https://github.com/platzky/platzky-promocode/compare/v0.3.5...v0.4.0) (2026-08-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* support new platzky ([#28](https://github.com/platzky/platzky-promocode/issues/28))
+
+### major
+
+* support new platzky ([#28](https://github.com/platzky/platzky-promocode/issues/28)) ([30ae377](https://github.com/platzky/platzky-promocode/commit/30ae3779235d8490759f4be8eeabd84509315d63))
+
+
+### Bug Fixes
+
+* release setup fixed ([#30](https://github.com/platzky/platzky-promocode/issues/30)) ([9fffad6](https://github.com/platzky/platzky-promocode/commit/9fffad6e33f3790cabc1b4939336a022700156bb))
+
 ## [0.3.5](https://github.com/platzky/platzky-promocode/compare/v0.3.4...v0.3.5) (2026-06-08)
 
 
