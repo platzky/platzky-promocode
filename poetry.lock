@@ -1741,14 +1741,14 @@ files = [
 
 [[package]]
 name = "platzky"
-version = "2.0.0a2"
+version = "2.0.0a12"
 description = "Not only blog engine"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["dev"]
 files = [
-    {file = "platzky-2.0.0a2-py3-none-any.whl", hash = "sha256:39da542c56466152fb202cacc564b45a4daf66de5d6b0c44f0b4060fb2484a96"},
-    {file = "platzky-2.0.0a2.tar.gz", hash = "sha256:5a09a424cf74f7678f3de7382cc09ffeaf98ce7a0bdd4e949a78f025ba1f2da8"},
+    {file = "platzky-2.0.0a12-py3-none-any.whl", hash = "sha256:d179435b4d9031c70725984a3a918ffb822ae854bddcdb7adf8936a08a79c6a9"},
+    {file = "platzky-2.0.0a12.tar.gz", hash = "sha256:7f4803baef1803ca5e3327d5318a6ce82c4ec79c707f4ef02bd5afec4833678b"},
 ]
 
 [package.dependencies]
@@ -1758,7 +1758,7 @@ Flask = ">=3.1.0,<4.0.0"
 Flask-Babel = ">=4.0.0,<5.0.0"
 Flask-Minify = ">=0.50,<0.51"
 Flask-WTF = ">=1.2.1,<2.0.0"
-google-cloud-storage = ">=2.5.0,<3.0.0"
+google-cloud-storage = ">=2.5,<4.0"
 gql = ">=3.4,<5.0"
 humanize = ">=4.9.0,<5.0.0"
 puremagic = ">=1.30,<2.0"
@@ -3213,4 +3213,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "5daef8eb29b1d31b13aa801937617bffb1528836d708facb67e23e1cfbf7fee1"
+content-hash = "a907343165a6a75d130ba78dcd2c02c125d27f8988c86ffd626bba53df84fea9"

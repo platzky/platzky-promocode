@@ -128,7 +128,7 @@ class PromocodePlugin(ContentTransformerPluginBase):
     client-side via ``atob()`` so it is never present as plain text in the DOM.
     """
 
-    accepted_content_types: ClassVar[frozenset[ContentType]] = frozenset({"post", "page", "field"})
+    accepted_content_types: frozenset[ContentType] = frozenset({"post", "page", "field"})
     shortcodes: ClassVar[dict[str, Shortcode]] = {}
 
     def __init__(self, _config: dict[str, Any]) -> None:
