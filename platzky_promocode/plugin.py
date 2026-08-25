@@ -6,6 +6,7 @@ from typing import Any, ClassVar, cast
 
 from flask_babel import get_locale, gettext  # type: ignore[reportUnknownVariableType]
 from markupsafe import escape
+from platzky.content_types import ContentType
 from platzky.plugin.content_transformer import ContentTransformerPluginBase
 from platzky.plugin.plugin import ConfigPluginError
 from platzky.shortcodes import Shortcode, ShortcodeAttr, ShortcodeAttrs
@@ -127,6 +128,7 @@ class PromocodePlugin(ContentTransformerPluginBase):
     client-side via ``atob()`` so it is never present as plain text in the DOM.
     """
 
+    accepted_content_types: frozenset[ContentType] = frozenset({"post", "page", "field"})
     shortcodes: ClassVar[dict[str, Shortcode]] = {}
 
     def __init__(self, _config: dict[str, Any]) -> None:

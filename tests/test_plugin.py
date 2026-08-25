@@ -149,3 +149,29 @@ def test_transform_field_value_dict_falls_back_to_config_defaults() -> None:
     result = sc.transform_field_value({"code": "X"})
     assert result["color"] == "#ff0000"
     assert result["text"] == "Get Code"
+
+
+# --- accepted_content_types ---
+
+
+def test_accepted_content_types_includes_field() -> None:
+    assert "field" in PromocodePlugin.accepted_content_types
+
+
+# --- transform_field_value locale resolution ---
+
+
+def test_transform_field_value_dict_text_uses_matching_locale() -> None:
+    plugin = PromocodePlugin({"text": {"en": "Reveal", "pl": "Pokaż"}})
+    sc = plugin.shortcodes["promocode"]
+    with patch("platzky_promocode.plugin.get_locale", return_value=Locale("pl")):
+        result = sc.transform_field_value("CODE")
+    assert result["text"] == "Pokaż"
+
+
+def test_transform_field_value_dict_text_falls_back_to_first_key() -> None:
+    plugin = PromocodePlugin({"text": {"en": "Reveal", "pl": "Pokaż"}})
+    sc = plugin.shortcodes["promocode"]
+    with patch("platzky_promocode.plugin.get_locale", return_value=Locale("uk")):
+        result = sc.transform_field_value("CODE")
+    assert result["text"] == "Reveal"
