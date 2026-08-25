@@ -12,21 +12,37 @@ pip install platzky_promocode
 
 ## Configuration
 
-Register the plugin in your platzky config:
+Plugins are configured in platzky's **database**, under a top-level `plugins` object keyed by
+plugin name (for the JSON database that is inside `DB.DATA`; the GraphQL and MongoDB backends
+store the same structure):
 
 ```json
 {
-    "plugins": [
-        {
-            "name": "promocode",
+    "plugins": {
+        "promocode": {
+            "is_active": true,
+            "allowed_content_types": ["post", "page", "field"],
             "config": {
                 "text": "Reveal your discount",
                 "color": "#e63946"
             }
         }
-    ]
+    }
 }
 ```
+
+The key (`promocode`) must match the plugin's entry-point name.
+
+| Field | Required | Default | Description |
+|---|---|---|---|
+| `is_active` | yes | `false` | The plugin is skipped entirely unless this is `true` |
+| `allowed_content_types` | yes | `[]` | Content types the plugin may transform — any of `post`, `page`, `comment`, `field`. Empty means the plugin loads but transforms nothing |
+| `config` | no | `{}` | Plugin settings, see below |
+
+`allowed_content_types` is enforced by the engine and intersected with the content types the
+plugin supports (`post`, `page`, `field`), so it can only narrow them, never widen them.
+
+### Plugin settings (`config`)
 
 | Field | Required | Default | Description |
 |---|---|---|---|
@@ -41,9 +57,10 @@ map when there is no match:
 
 ```json
 {
-    "plugins": [
-        {
-            "name": "promocode",
+    "plugins": {
+        "promocode": {
+            "is_active": true,
+            "allowed_content_types": ["post", "page", "field"],
             "config": {
                 "text": {
                     "en": "Reveal Promo Code",
@@ -52,7 +69,7 @@ map when there is no match:
                 }
             }
         }
-    ]
+    }
 }
 ```
 
