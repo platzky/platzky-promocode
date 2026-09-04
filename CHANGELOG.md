@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/platzky/platzky-promocode/compare/v0.5.0...v0.5.1) (2026-09-04)
+
+
+### Bug Fixes
+
+* fix release ([#36](https://github.com/platzky/platzky-promocode/issues/36)) ([92d14ef](https://github.com/platzky/platzky-promocode/commit/92d14ef76f33577d50b45ae019541a4634c35b11))
+
 ## [0.5.0](https://github.com/platzky/platzky-promocode/compare/v0.4.0...v0.5.0) (2026-09-04)
 
 
