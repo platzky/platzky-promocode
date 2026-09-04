@@ -21,7 +21,7 @@ store the same structure):
     "plugins": {
         "promocode": {
             "is_active": true,
-            "allowed_content_types": ["post", "page", "marker_field"],
+            "allowed_content_types": ["post", "page"],
             "config": {
                 "text": "Reveal your discount",
                 "color": "#e63946"
@@ -36,7 +36,7 @@ The key (`promocode`) must match the plugin's entry-point name.
 | Field | Required | Default | Description |
 |---|---|---|---|
 | `is_active` | yes | `false` | The plugin is skipped entirely unless this is `true` |
-| `allowed_content_types` | yes | `[]` | Content types the plugin may transform. Platzky provides `post`, `page` and `comment`; a host application adds its own (goodmap contributes `marker_field`). Empty means the plugin loads but transforms nothing |
+| `allowed_content_types` | yes | `[]` | Content types the plugin may transform. Platzky provides `post`, `page` and `comment`; a host application adds its own. Empty means the plugin loads but transforms nothing |
 | `config` | no | `{}` | Plugin settings, see below |
 
 `allowed_content_types` is enforced by the engine and intersected with the content types the
@@ -50,10 +50,8 @@ nothing, and platzky says so at startup:
 
 ```
 Plugin PromocodePlugin is granted content type 'field', which this application does not
-produce; the grant has no effect. Known types: comment, marker_field, page, post
+produce; the grant has no effect. Known types: comment, page, post
 ```
-
-On goodmap the marker-field type is called `marker_field`, not `field`.
 
 ### Plugin settings (`config`)
 
@@ -73,7 +71,7 @@ map when there is no match:
     "plugins": {
         "promocode": {
             "is_active": true,
-            "allowed_content_types": ["post", "page", "marker_field"],
+            "allowed_content_types": ["post", "page"],
             "config": {
                 "text": {
                     "en": "Reveal Promo Code",
@@ -100,24 +98,23 @@ An optional `color` attribute overrides the configured button colour:
 Grab your [promocode color="#e91e63"]SAVE20[/promocode] before it expires!
 ```
 
-## Usage in a goodmap point
+## Usage in a host application's content field
 
-On a [goodmap](https://github.com/problematy/goodmap) map the same plugin renders the reveal
-button inside a marker popup. Give the point a `promocode` field and list it in
-`visible_data`; the value is the code itself, or a dict with per-point overrides:
+A platzky host application can render the same button from one of its own content fields,
+with no per-plugin frontend code. Name the field after the shortcode (`promocode`) — that is
+how the host knows to route it here — and give it the code itself, or a dict with per-entry
+overrides:
 
 ```json
 {
-    "name": "Habza cafe",
-    "position": [51.078, 17.062],
     "promocode": { "code": "HABZASPOT", "color": "green" }
 }
 ```
 
-`allowed_content_types` must include `marker_field` (see the config above). Nothing else is needed:
-the shortcode renders the field itself, and goodmap displays that rendering — there is no
-bundle to serve and nothing to register on the frontend. The field must be named after the
-shortcode (`promocode`), which is how the host knows to route it here.
+`allowed_content_types` must include whichever content type the host uses for such fields
+(see the config above). Nothing else is needed: the shortcode renders the field itself and
+the host displays that rendering — there is no bundle to serve and nothing to register on
+the frontend.
 
 Add `head` to `allowed_page_sections` as well, so the plugin's stylesheet is injected:
 
@@ -125,6 +122,6 @@ Add `head` to `allowed_page_sections` as well, so the plugin's stylesheet is inj
 plugins:
   promocode:
     is_active: true
-    allowed_content_types: ["marker_field"]
+    allowed_content_types: ["post", "page"]  # plus the host's own field type, if any
     allowed_page_sections: ["head"]
 ```

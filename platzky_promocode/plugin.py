@@ -88,7 +88,7 @@ class _PromocodeShortcode(Shortcode):
 
         The only rendering this shortcode has: ``render_value`` maps a field value onto
         these arguments (``code`` is the ``content_key``, ``color`` and ``text`` are
-        declared attributes), so a post and a marker popup cannot drift apart, and
+        declared attributes), so a post and a field value cannot drift apart, and
         ``color`` is validated here once for both.
 
         ``<details>`` is the native click-to-reveal control, so the button needs no

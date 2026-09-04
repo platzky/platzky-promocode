@@ -180,7 +180,7 @@ def test_label_falls_back_to_first_key_for_an_unlisted_locale() -> None:
 
 
 def test_render_value_matches_the_tag_rendering() -> None:
-    """One rendering, two entry points: a post and a marker popup cannot drift apart."""
+    """One rendering, two entry points: a post and a field value cannot drift apart."""
     plugin = _make_plugin()
     sc = plugin.shortcodes["promocode"]
     assert sc.render_value("SAVE20") == _render(plugin, "[promocode]SAVE20[/promocode]")
