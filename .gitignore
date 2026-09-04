@@ -25,7 +25,5 @@ venv
 .ruff_cache
 .mypy_cache
 
-# Frontend build
-frontend/node_modules
-frontend/.webpack-cache
-platzky_promocode/static/main.js
+# Generated translation template (rebuilt by `make update-translations`)
+messages.pot

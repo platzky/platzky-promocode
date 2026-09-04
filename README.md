@@ -2,7 +2,7 @@
 
 A [platzky](https://github.com/platzky/platzky) plugin that adds a click-to-reveal promo code button.
 
-The promo code is never present as plain text in the page — it is base64-encoded and decoded client-side only on click.
+The reveal is a native `<details>` disclosure, so the plugin ships no JavaScript: it works under a strict CSP and is keyboard- and screen-reader-accessible without any script.
 
 ## Installation
 
@@ -21,7 +21,7 @@ store the same structure):
     "plugins": {
         "promocode": {
             "is_active": true,
-            "allowed_content_types": ["post", "page", "field"],
+            "allowed_content_types": ["post", "page"],
             "config": {
                 "text": "Reveal your discount",
                 "color": "#e63946"
@@ -36,11 +36,22 @@ The key (`promocode`) must match the plugin's entry-point name.
 | Field | Required | Default | Description |
 |---|---|---|---|
 | `is_active` | yes | `false` | The plugin is skipped entirely unless this is `true` |
-| `allowed_content_types` | yes | `[]` | Content types the plugin may transform — any of `post`, `page`, `comment`, `field`. Empty means the plugin loads but transforms nothing |
+| `allowed_content_types` | yes | `[]` | Content types the plugin may transform. Platzky provides `post`, `page` and `comment`; a host application adds its own. Empty means the plugin loads but transforms nothing |
 | `config` | no | `{}` | Plugin settings, see below |
 
 `allowed_content_types` is enforced by the engine and intersected with the content types the
-plugin supports (`post`, `page`, `field`), so it can only narrow them, never widen them.
+plugin accepts, so it can only narrow them, never widen them. This plugin accepts *every*
+content type the application knows — a promo code is inert markup, so there is nowhere it is
+unsuited to — which means the grant alone decides where it runs, and naming a type here is
+the only thing that switches it on.
+
+Name the types your application actually has. A grant naming an unknown type silently does
+nothing, and platzky says so at startup:
+
+```
+Plugin PromocodePlugin is granted content type 'field', which this application does not
+produce; the grant has no effect. Known types: comment, page, post
+```
 
 ### Plugin settings (`config`)
 
@@ -60,7 +71,7 @@ map when there is no match:
     "plugins": {
         "promocode": {
             "is_active": true,
-            "allowed_content_types": ["post", "page", "field"],
+            "allowed_content_types": ["post", "page"],
             "config": {
                 "text": {
                     "en": "Reveal Promo Code",
@@ -85,4 +96,32 @@ An optional `color` attribute overrides the configured button colour:
 
 ```markdown
 Grab your [promocode color="#e91e63"]SAVE20[/promocode] before it expires!
+```
+
+## Usage in a host application's content field
+
+A platzky host application can render the same button from one of its own content fields,
+with no per-plugin frontend code. Name the field after the shortcode (`promocode`) — that is
+how the host knows to route it here — and give it the code itself, or a dict with per-entry
+overrides:
+
+```json
+{
+    "promocode": { "code": "HABZASPOT", "color": "green" }
+}
+```
+
+`allowed_content_types` must include whichever content type the host uses for such fields
+(see the config above). Nothing else is needed: the shortcode renders the field itself and
+the host displays that rendering — there is no bundle to serve and nothing to register on
+the frontend.
+
+Add `head` to `allowed_page_sections` as well, so the plugin's stylesheet is injected:
+
+```yaml
+plugins:
+  promocode:
+    is_active: true
+    allowed_content_types: ["post", "page"]  # plus the host's own field type, if any
+    allowed_page_sections: ["head"]
 ```

@@ -2,23 +2,25 @@
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry]
+[project]
 name = "platzky_promocode"
-version = "0.4.0"
 description = "Plugin for revealing promo codes."
-authors = ["ravenw-wing"]
+authors = [{ name = "ravenw-wing" }]
 license = "MIT"
 readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = ["platzky==2.0.0a14"]
+dynamic = ["version"]
+
+
+[project.entry-points."platzky.plugins"]
+promocode = "platzky_promocode.plugin:PromocodePlugin"
+
+[tool.poetry]
+version = "0.4.0"
 include = [
-    "platzky_promocode/static/**",
     { path = "platzky_promocode/locale/**/*.mo", format = ["wheel", "sdist"] },
 ]
-
-[tool.poetry.dependencies]
-python = "^3.10"
-
-[tool.poetry.plugins."platzky.plugins"]
-promocode = "platzky_promocode.plugin:PromocodePlugin"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.3"
@@ -27,7 +29,6 @@ ruff = ">=0.8.3,<0.16.0"
 pyright = "^1.1.390"
 coverage = "^7.6.9"
 interrogate = "^1.7.0"
-platzky = "2.0.0a12"
 
 
 [tool.black]

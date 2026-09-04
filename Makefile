@@ -1,4 +1,4 @@
-.PHONY: lint dev lint-check unit-tests coverage html-cov build build-frontend compile-translations update-translations
+.PHONY: lint dev lint-check unit-tests coverage html-cov build compile-translations update-translations
 
 lint:
 	poetry run black .
@@ -24,10 +24,7 @@ coverage:
 html-cov: coverage
 	poetry run coverage html
 
-build-frontend:
-	cd frontend && npm install && npm run build
-
-build: build-frontend compile-translations
+build: compile-translations
 	poetry build
 
 compile-translations:
