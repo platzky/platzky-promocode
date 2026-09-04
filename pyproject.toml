@@ -9,19 +9,10 @@ authors = [{ name = "ravenw-wing" }]
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
-# Runtime, not dev: plugin.py imports platzky at module load, so a wheel without this
-# installs an unimportable package. Pinned exactly, not floored, because the 2.0 alphas are
-# still moving the plugin contract under us: a13 introduced the Mapping-based
-# accepted_content_types and ALL_CONTENT_TYPES, and transform_content moved off the plugin
-# base onto ContentTransformerRegistry, so a plugin built for one alpha does not run on its
-# neighbour. 2.0.0a14 is the newest alpha and the one this targets; re-run the suite when
-# raising it, since these moves are not deprecations and break loudly.
 dependencies = ["platzky==2.0.0a14"]
-# Kept in [tool.poetry] below, where release-please already updates it.
 dynamic = ["version"]
 
-# How platzky discovers the plugin. The name here is also the key an operator configures
-# it under; a plugin whose two differ never loads.
+
 [project.entry-points."platzky.plugins"]
 promocode = "platzky_promocode.plugin:PromocodePlugin"
 
