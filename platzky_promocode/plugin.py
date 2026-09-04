@@ -1,13 +1,14 @@
 """Plugin for revealing promo codes embedded in blog content."""
 
-import base64
 import re
-from typing import Any, ClassVar, cast
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 from flask_babel import get_locale, gettext  # type: ignore[reportUnknownVariableType]
-from markupsafe import escape
-from platzky.content_types import ContentType
+from markupsafe import Markup, escape
+from platzky.content_types import ALL_CONTENT_TYPES, ContentType
 from platzky.plugin.content_transformer import ContentTransformerPluginBase
+from platzky.plugin.html_injector import HtmlInjectorPluginBase, PageSection
 from platzky.plugin.plugin import ConfigPluginError
 from platzky.shortcodes import Shortcode, ShortcodeAttr, ShortcodeAttrs
 from pydantic import BaseModel, ValidationError, field_validator
@@ -18,6 +19,22 @@ _COLOR_RE = re.compile(
     r"|rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*[\d.]+\s*\)"
     r"|[a-zA-Z]+)$"
 )
+
+# Styles the native disclosure as a button and swaps it for the code once open. The
+# colour arrives per element as a custom property, so these rules are static and can be
+# injected once into <head> rather than inlined on every occurrence.
+_STYLE = """<style>
+.platzky-promocode{display:inline-block}
+.platzky-promocode>summary{
+background:var(--platzky-promocode-color,#4caf50);border-radius:4px;color:#fff;
+cursor:pointer;display:inline-block;list-style:none;padding:.5rem 1.25rem;
+user-select:none}
+.platzky-promocode>summary::-webkit-details-marker{display:none}
+.platzky-promocode[open]{
+background:#333;border-radius:4px;color:#fff;font-family:monospace;
+letter-spacing:.1em;padding:.5rem 1.25rem}
+.platzky-promocode[open]>summary{display:none}
+</style>"""
 
 
 class PromocodeConfig(BaseModel):
@@ -41,9 +58,14 @@ class _PromocodeShortcode(Shortcode):
     name = "promocode"
     description = "Reveal a promo code on click. Hidden until clicked."
     attributes: ClassVar[ShortcodeAttrs] = ShortcodeAttrs(
-        [ShortcodeAttr("color", "Button colour (any CSS colour literal)", required=False)]
+        [
+            ShortcodeAttr("color", "Button colour (any CSS colour literal)", required=False),
+            ShortcodeAttr("text", "Button label, overriding the configured one", required=False),
+        ]
     )
     example = "[promocode]SUMMER2024[/promocode]"
+    # A promocode field keeps the code under `code`, so that is its inner content.
+    content_key: ClassVar[str] = "code"
 
     def __init__(self, config: PromocodeConfig) -> None:
         """Initialise with plugin config.
@@ -61,59 +83,43 @@ class _PromocodeShortcode(Shortcode):
             return text.get(locale) or next(iter(text.values()))
         return gettext(text)
 
-    def transform_field_value(self, value: object) -> dict[str, object]:
-        """Merge config defaults, add scope, and base64-encode the promo code.
+    def render(self, attrs: ShortcodeAttrs, content: Markup) -> str:
+        """Render the reveal control, for a tag in post content or for a field value.
 
-        Accepts a plain string (the code) or a dict with ``code`` plus optional
-        per-entry overrides (``color``, ``text``).  Dict values win over config defaults.
-        """
-        result: dict[str, object] = {**self._config.model_dump(), "scope": self.name}
-        result["text"] = self._resolve_label()
-        if isinstance(value, str):
-            code = value
-        elif isinstance(value, dict):
-            d = cast(dict[str, object], value)
-            result.update({k: v for k, v in d.items() if k != "code"})
-            code = d.get("code", "")
-        else:
-            return result
-        if isinstance(code, str) and code:
-            result["code"] = base64.b64encode(code.encode()).decode()
-        return result
+        The only rendering this shortcode has: ``render_value`` maps a field value onto
+        these arguments (``code`` is the ``content_key``, ``color`` and ``text`` are
+        declared attributes), so a post and a marker popup cannot drift apart, and
+        ``color`` is validated here once for both.
 
-    def render(self, attrs: ShortcodeAttrs, content: str) -> str:
-        """Render a reveal button for the promo code in content.
+        ``<details>`` is the native click-to-reveal control, so the button needs no
+        script: it is keyboard-operable and screen-reader-correct on its own, survives a
+        strict CSP, and still works in a host that strips event handlers.
 
         Args:
-            attrs: Parsed shortcode attributes; ``color`` overrides the configured colour.
-            content: The promo code to encode.
+            attrs: Parsed attributes; ``color`` and ``text`` override the configured ones.
+                Raw, so ``color`` and ``label`` are escaped where they are interpolated.
+            content: The promo code to reveal. ``Markup`` because the escaping decision
+                is already made upstream — a stored value was escaped by ``render_value``,
+                and post content was vouched for by its caller — so escaping it again here
+                would only mangle it.
 
         Returns:
-            A ``<button>`` element that reveals the code on click.
+            A ``<details>`` element revealing the code on click.
         """
-        value: dict[str, object] = {"code": content.strip()}
-        if attrs.color and _COLOR_RE.match(attrs.color.strip()):
-            value["color"] = attrs.color.strip()
-        data = self.transform_field_value(value)
-
-        label = self._resolve_label()
-
-        code_val = data.get("code")
-        color_val = data.get("color")
-        encoded = code_val if isinstance(code_val, str) else ""
-        color = color_val if isinstance(color_val, str) else self._config.color
-
+        color = attrs.color.strip()
+        if not _COLOR_RE.match(color):
+            color = self._config.color
+        label = attrs.text or self._resolve_label()
         return (
-            f'<button class="platzky-promocode-btn"'
-            f' style="--platzky-promocode-color:{color};"'
-            f' data-code="{encoded}"'
-            f' onclick="platzkyRevealPromocode(this)">'
-            f"{escape(label)}"
-            f"</button>"
+            f'<details class="platzky-promocode"'
+            f' style="--platzky-promocode-color:{color};">'
+            f"<summary>{escape(label)}</summary>"
+            f"{content.strip()}"
+            f"</details>"
         )
 
 
-class PromocodePlugin(ContentTransformerPluginBase):
+class PromocodePlugin(ContentTransformerPluginBase, HtmlInjectorPluginBase):
     """Plugin that registers a ``[promocode]`` shortcode.
 
     Blog authors embed promo codes in post content as::
@@ -124,11 +130,30 @@ class PromocodePlugin(ContentTransformerPluginBase):
 
         [promocode color="#e91e63"]SAVE20[/promocode]
 
-    The actual code is base64-encoded in a ``data-code`` attribute and decoded
-    client-side via ``atob()`` so it is never present as plain text in the DOM.
+    The control is a native ``<details>`` disclosure, so the plugin ships no JavaScript
+    at all: the reveal works under a strict CSP, in a host that strips event handlers,
+    and for keyboard and screen-reader users without any scripted behaviour. The code is
+    plain text in the markup — base64 never concealed it either, since the field payload
+    carries it in the API response.
+
+    It accepts any content type, so a host that maps one of its own content fields to this
+    shortcode gets the same control from ``render_value`` — whichever content types the
+    operator grants.
+
+    The one thing the markup needs is a stylesheet, injected into ``<head>`` so the same
+    rules serve every page and every host.
     """
 
-    accepted_content_types: frozenset[ContentType] = frozenset({"post", "page", "field"})
+    # No technical constraint on where a code can be revealed, so the operator decides
+    # entirely — including for content types that did not exist when this was written.
+    accepted_content_types: Mapping[ContentType, str] = {
+        ALL_CONTENT_TYPES: (
+            "Reveals a promo code wherever one is worth showing. The control is inert "
+            "markup — no script, no network, nothing that costs anything to render — so "
+            "there is no kind of content it is unsuited to."
+        )
+    }
+    accepted_page_sections: frozenset[PageSection] = frozenset({"head"})
     shortcodes: ClassVar[dict[str, Shortcode]] = {}
 
     def __init__(self, _config: dict[str, Any]) -> None:
@@ -147,6 +172,14 @@ class PromocodePlugin(ContentTransformerPluginBase):
             raise ConfigPluginError(f"Invalid configuration: {e}") from e
         self.shortcodes = {"promocode": _PromocodeShortcode(config)}  # type: ignore[misc]
         self.config = config
+
+    def get_head_html(self) -> str:
+        """Return the stylesheet that makes the disclosure look like a button.
+
+        Returns:
+            A ``<style>`` block scoped to this plugin's own class name.
+        """
+        return _STYLE
 
 
 Plugin = PromocodePlugin
