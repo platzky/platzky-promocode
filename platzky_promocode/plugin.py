@@ -1,7 +1,7 @@
 """Plugin for revealing promo codes embedded in blog content."""
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any, ClassVar
 
 from flask_babel import get_locale, gettext  # type: ignore[reportUnknownVariableType]
@@ -83,7 +83,7 @@ class _PromocodeShortcode(Shortcode):
             return text.get(locale) or next(iter(text.values()))
         return gettext(text)
 
-    def render(self, attrs: ShortcodeAttrs, content: Markup) -> str:
+    def render(self, attrs: ShortcodeAttrs, content: Markup, children: Sequence[Markup]) -> str:
         """Render the reveal control, for a tag in post content or for a field value.
 
         The only rendering this shortcode has: ``render_value`` maps a field value onto
@@ -102,6 +102,7 @@ class _PromocodeShortcode(Shortcode):
                 is already made upstream — a stored value was escaped by ``render_value``,
                 and post content was vouched for by its caller — so escaping it again here
                 would only mangle it.
+            children: Element children of the tag; unused, a promo code has no structure.
 
         Returns:
             A ``<details>`` element revealing the code on click.

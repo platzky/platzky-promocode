@@ -220,7 +220,7 @@ def test_render_embeds_prose_content_without_escaping() -> None:
     the code segment; escaping it here would show it to the reader as literal text.
     """
     sc = _make_plugin().shortcodes["promocode"]
-    result = sc.render(ShortcodeAttrs(list(sc.attributes)), Markup("<b>SAVE</b>20"))
+    result = sc.render(ShortcodeAttrs(list(sc.attributes)), Markup("<b>SAVE</b>20"), ())
 
     assert "<b>SAVE</b>20" in result
 
