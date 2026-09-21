@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.2](https://github.com/platzky/platzky-promocode/compare/v0.5.1...v0.5.2) (2026-09-21)
+
+
+### Bug Fixes
+
+* fix broken dependency ([#40](https://github.com/platzky/platzky-promocode/issues/40)) ([7b228a6](https://github.com/platzky/platzky-promocode/commit/7b228a6a15cecfe3a3ddead1b37662645a74aa40))
+* fix dependency to platzky ([#39](https://github.com/platzky/platzky-promocode/issues/39)) ([7609152](https://github.com/platzky/platzky-promocode/commit/76091525d003d3ead8b548508d026f8c09e20885))
+
 ## [0.5.1](https://github.com/platzky/platzky-promocode/compare/v0.5.0...v0.5.1) (2026-09-04)
 
 
